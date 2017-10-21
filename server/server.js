@@ -18,10 +18,15 @@ io.on('connection', (socket) => {
     socket.emit('newMessage', generateMessage('Admin','Welcome to chatbat'));
     socket.broadcast.emit('newMessage',generateMessage('Admin','A new user joins chatbat'));
    
-    socket.on('createMessage', (message) => {
+    socket.on('createMessage', (message,callback) => {
         console.log("Create Message",message);
+        callback();
         io.emit('newMessage', generateMessage(message.from,message.text));
     });
+    
+
+
+
     socket.on('disconnect', () => {
     console.log ('Disconnected from server');
  });
