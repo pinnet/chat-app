@@ -13,9 +13,17 @@ var io = socketIO(server);
 app.use(express.static(pubPath));
 
 io.on('connection', (socket) => {
-  console.log('Socket:connect');
+    console.log('Socket:connect');
   
-  socket.on('disconnect', () => {
+    socket.emit('newMessage',{
+        from: 'danny@dannyarnold.com',
+        text: 'WTF',
+        createAt: 1234566778
+    });
+    socket.on('createMessage', (newMessage) => {
+        console.log("Create Message",newMessage);
+    });
+    socket.on('disconnect', () => {
     console.log ('Disconnected from server');
  });
 });
