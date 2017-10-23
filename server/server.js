@@ -4,7 +4,7 @@ const socketIO = require('socket.io');
 const express = require('express');
 
 const {generateMessage,generateLocationMessage} = require('./utils/message');
-
+const {isRealString} = require("./utils/valadation");
 
 const pubPath = path.join(__dirname,'../public');
 const port = process.env.PORT || 3000;
@@ -17,8 +17,17 @@ app.use(express.static(pubPath));
 
 io.on('connection', (socket) => {
     console.log('Socket:connect');
-    socket.emit('newMessage', generateMessage('Admin','Welcome to chatbat'));
-    socket.broadcast.emit('newMessage',generateMessage('Admin','A new user joins chatbat'));
+    
+    
+    socket.on('join', (params,callback) =>{
+        if(!isRealString(params.name) || !isRealString(params.room)){
+            callback('name and room name are required');
+        }
+        socket.join(params.room);
+        socket.emit('newMessage', generateMessage('Admin',`Welcome to ${params.room}`));
+        socket.broadcast.to(params.room).emit('newMessage',generateMessage('Admin',`A ${params.name} joins ${params.room}`));
+        callback();
+    });
    
     socket.on('createMessage', (message,callback) => {
         console.log("Create Message",message);
