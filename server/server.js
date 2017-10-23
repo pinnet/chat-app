@@ -18,7 +18,7 @@ var users = new Users();
 app.use(express.static(pubPath));
 
 io.on('connection', (socket) => {
-    
+
     socket.on('join', (params,callback) =>{
         if(!isRealString(params.name) || !isRealString(params.room)){
             return callback('name and room name are required');
@@ -49,10 +49,13 @@ io.on('connection', (socket) => {
     });
     socket.on('disconnect', () => {
   
-        var user = users.removeUser(socket.id);
-        io.to(user.room).emit('updateUserList',users.getUsersList(user.room));
-        io.to(user.room).emit('newMessage', generateMessage('Admin',`${user.name} has left the room`));
-   });
+        var user = users.getUser(socket.id);
+        if (user){
+            users.removeUser(socket.id);
+            io.to(user.room).emit('updateUserList',users.getUsersList(user.room));
+            io.to(user.room).emit('newMessage', generateMessage('Admin',`${user.name} has left the room`));
+        }
+    });
 });
  
 server.listen(port, () =>{ console.log(`Starting server on port ${port}`);});
